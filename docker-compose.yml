@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  sensors_db:
+    image: postgres:14
+    container_name: sensors_db
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    networks:
+      - sensors_net
+
+  sensors_api:
+    build: ./
+    container_name: sensors_api
+    restart: always
+    command: bash -c "python main.py"
+    volumes:
+      - ./:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - sensors_db
+    networks:
+      - sensors_net
+
+
+networks:
+  sensors_net:
+    external: true
